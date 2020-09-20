@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>navbar</title>
+    <link rel="stylesheet" href="index.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  </head>
+  <body>
+    <nav>
+      <div class="menu-icon">
+        <span class="fas fa-bars"></span>
+      </div>
+      <div class="logo">
+        Movie Junkie
+      </div>
+      <div class="nav-items">
+        <li><a href="..\Home\home.html"><i class="fa fa-home" ></i> Home</a></li>
+        <li><a href="..\About\about.html"><i class="fa fa-ticket" ></i> About</a></li>
+        <li><a href="..\MovieDB\MovieDBMain.html"><i class="fa fa-video-camera" ></i> Movies</a></li>
+        <li><a href="..\Contact\contact.html"><i class="fa fa-tty" ></i> Contact</a></li>
+        <li><a href="..\Feedback\feedbackForm.html"><i class="fa fa-comment" ></i> Feedback</a></li>
+      </div>
+      <div class="search-icon">
+        <i class="fa fa-search" aria-hidden="true"></i>
+      </div>
+      <div class="cancel-icon">
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </div>
+      <form action="search_db.php" method="POST">
+        <input type="search" class="search-data" placeholder="Search" required>
+        <button type="submit" class="fa fa-search"></button>
+      </form>
+    </nav>
+    
+    </script lang="js" src="index.js">
+  </body>
+</html>
