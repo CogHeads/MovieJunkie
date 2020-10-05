@@ -97,7 +97,8 @@
         }
     }
 
-    class Query_Capsule{
+    class Query_Capsule
+    {
         function __construct(Table_Field_Rel ...$TFRs)
         {
             foreach($TFRs as $TFR){
@@ -110,20 +111,25 @@
                 $this->_Aggregate_Conditions = "";
                 $this->_Orderings = "";
                 $this->_Joins = "";
+                /*
+                $this->_Join_Type = "";
+                $this->_Join_Table = "";
+                $this->_Join_Condition = "";
+                */
             }
         }
 
-        public function Selection(int $index = 0): string
+        final public function Selection(int $index = 0): string
         {
             return $this->_Selections[$index];
         }
 
-        public function Selections(): array
+        final public function Selections(): array
         {
             return $this->_Selections;
         }
 
-        public function SelectionsFrom(string $Table_name): array
+        final public function SelectionsFrom(string $Table_name): array
         {
             $Subset = [];
 
@@ -146,22 +152,22 @@
             return $Subset;
         }
 
-        public function Table(int $index = 0): string
+        final public function Table(int $index = 0): string
         {
             return $this->_Tables[$index];
         }
 
-        public function Tables(): array
+        final public function Tables(): array
         {
             return $this->_Tables;
         }
 
-        function __toString()
+        final function __toString()
         {
             return "{$this->SelectFrom()} {$this->Join()} {$this->Where()} {$this->GroupBy()} {$this->Having()} {$this->OrderBy()}";
         }
 
-        public function Table_Selection_Map(): array
+        final public function Table_Selection_Map(): array
         {
             $TS_Set = [];
 
@@ -171,146 +177,74 @@
             return $TS_Set;
         }
 
-        public function SelectFrom(): string
-        {
-            if($this->_Selections)
-                return "SELECT " . implode(",", $this->Selections()) . " FROM " . implode(",", $this->Tables());
-            return "SELECT * FROM " . implode(",", $this->Tables());
-        }
+        public function SelectFrom(){}
 
-        public function Join(): string
-        {
-            return $this->_Joins;
-        }
+        public function Join(){}
 
-        public function Where(): string
-        {
-            if($this->_Conditions)
-                return "WHERE ({$this->_Conditions})";
-            return "";
-        }
+        public function Where(){}
 
-        public function GroupBy(): string
-        {
-            if($this->_Groupings)
-                return "GROUP BY ({$this->_Groupings})";
-            return "";
-        }
+        public function GroupBy(){}
 
-        public function Having(): string
-        {
-            if($this->_Aggregate_Conditions)
-                return "HAVING ({$this->_Aggregate_Conditions})";
-            return "";
-        }
+        public function Having(){}
 
-        public function OrderBy(): string
-        {
-            if($this->_Orderings)
-                return "ORDER BY ({$this->_Orderings})";
-            return "";
-        }
+        public function OrderBy(){}
 
+        final 
         public function SetJoin(string $join_type, string $table_name, string $condition = "", string $select_format = ""): void
         {
+            if(!$join_type){
+                $this->_Joins = "";
+                return;
+            }
+
+            $join_type = $this->Translate($join_type, $select_format);
             $table_name = $this->Translate($table_name, $select_format);
 
             if($condition){
                 $condition = $this->Translate($condition, $select_format);
                 $this->_Joins = "{$join_type} JOIN {$table_name} ON {$condition}";
+                /*
+                $this->_Join_Type = $join_type;
+                $this->_Join_Table = $table_name;
+                $this->_Join_Condition = $condition;
+                */
             }
-            else
+            else{
                 $this->_Joins = "{$join_type} JOIN {$table_name}";
+                /*
+                $this->_Join_Type = $join_type;
+                $this->_Join_Table = $table_name;
+                $this->_Join_Condition = $condition;
+                */
+            }
         }
 
-        public function SetWhere(string $encoded, string $select_format = ""): void
+        final public function SetWhere(string $encoded, string $select_format = ""): void
         {
             $this->_Conditions = $this->Translate($encoded, $select_format);
         }
 
-        public function SetGrouping(string $encoded, string $select_format = ""): void
+        final public function SetGrouping(string $encoded, string $select_format = ""): void
         {
             $this->_Groupings = $this->Translate($encoded, $select_format);
         }
 
-        public function SetHaving(string $encoded, string $select_format = ""): void
+        final public function SetHaving(string $encoded, string $select_format = ""): void
         {
             $this->_Aggregate_Conditions = $this->Translate($encoded, $select_format);
         }
 
-        public function SetOrdering(string $encoded, string $select_format = ""): void
+        final public function SetOrdering(string $encoded, string $select_format = ""): void
         {
             $this->_Orderings = $this->Translate($encoded, $select_format);
         }
 
-        public function SelectFromQuery(string $selections, string $select_format = ""): string
-        {
-            $selections = $this->Translate($selections, $select_format);
-            $tables = implode(",", $this->Tables());
-            return "SELECT {$selections} FROM {$tables}";
-        }
-
-        public function JoinQuery(string $join_type, string $table_name, string $condition = "", string $select_format = ""): string
-        {
-            $table_name = $this->Translate($table_name, $select_format);
-
-            if(!$condition)
-                return  "{$join_type} JOIN {$table_name}";
-            
-            $condition = $this->Translate($condition, $select_format);
-            return "{$join_type} JOIN {$table_name} ON {$condition}";
-        }
-
-        public function WhereQuery(string $condition, string $select_format = ""): string
-        {
-           $condition = $this->Translate($condition, $select_format);
-            return "WHERE ({$condition})";
-        } 
-
-        public function InsertValuesQuery(string $values, string $fields = "", int $table_index = 0, $select_format = ""): string
-        {
-            $table_name = $this->Table($table_index);
-            $selections = [];
-
-            if($fields){
-                $fields = $this->Translate($fields, $select_format);
-                $selections = explode(",", $fields);
-
-                foreach ($selections as $key => $selection)
-                    $selections[$key] = trim($selection);
-            }
-            else
-                $selections = $this->SelectionsFrom($table_name);
-
-            $selections = new Field_Rel(...$selections);
-            $values = $this->Translate($values, $select_format);
-
-            return "INSERT INTO {$table_name} ({$selections}) VALUES ({$values})";
-        }
-
-        public function UpdateQuery(string $settings, string $condition = "", int $table_index = 0, $select_format = ""): string
-        {
-            $settings = $this->Translate($settings, $select_format);
-            $condition = $condition ? $this->Translate($condition, $select_format) : "true";
-            $table_name = $this->Table($table_index);
-            $reference_table = $table_name . ' ' . $this->Join();
-
-            return "UPDATE {$table_name} SET {$settings} FROM {$reference_table} WHERE {$condition}";
-        }
-
-        public function DeleteQuery(string $tables, string $condition = "", string $select_format = ""): string
-        {
-            $condition = $this->Translate($condition, $select_format);
-            $reference_table = $this->Join();
-            return "DELETE {$tables} FROM {$reference_table} WHERE {$condition}";
-        }
-
-        private function Translate(string $encoded, string $reference): string
+        final protected function Translate(string $encoded, string $reference): string
         {
             return $this->Parse_All($this->FormatShortHand($encoded, $reference));
         }
 
-        private function FormatShortHand(string $canvas, string $format): string //formats from placeholder tags [${number}_] to encoded form [$(table_no).(field_no)]
+        final protected function FormatShortHand(string $canvas, string $format): string //formats from placeholder tags [${number}_] to encoded form [$(table_no).(field_no)]
         {
             if($format){
                 $pieces = explode(",", $format);
@@ -318,14 +252,21 @@
                     $pieces[$key] = trim($piece);
 
                 $limit = count($pieces);
-                for($var = 0; $var < $limit; ++$var)
-                    $canvas = str_replace('$' . $var . "_", '$' . $pieces[$var], $canvas);
+                for($var = 0; $var < $limit; ++$var){
+                    $replacement = $pieces[$var];
+                    if(is_numeric($replacement)) 
+                        $replacement = '$' . $replacement;
+                    else if($replacement[0] == "#")
+                        $replacement = substr($replacement, 1);
+
+                    $canvas = str_replace('$' . $var . "_", $replacement, $canvas);
+                }
             }
 
             return $canvas;
         }
 
-        private function Parse_All(string $encoded): string //converts fields and tables from a Global Reference
+        final protected function Parse_All(string $encoded): string //converts fields and tables from a Global Reference
         {
             $Table_Field_Map = $this->Table_Selection_Map();
             $Table_Names = $this->Tables();
@@ -373,7 +314,7 @@
             return $encoded;
         }
         
-        private function Parse_Fields(string $encoded): string //converts fields from a Local Reference
+        final protected function Parse_Fields(string $encoded): string //converts fields from a Local Reference
         {
             $Table_Field_Map = $this->Table_Selection_Map();
             $Table_Names = $this->Tables();
@@ -403,7 +344,7 @@
             return $encoded;
         }
         
-        private function Parse_Tables(string $encoded): string //converts tables from a Global Reference
+        final protected function Parse_Tables(string $encoded): string //converts tables from a Global Reference
         {
             $Table_Names = $this->Tables();
 
@@ -428,12 +369,401 @@
             return $encoded;
         }
 
-        private array $_Selections;
-        private array $_Tables;
-        private string $_Joins;
-        private string $_Conditions;
-        private string $_Groupings;
-        private string $_Aggregate_Conditions;
-        private string $_Orderings;
+        protected array $_Selections;
+        protected array $_Tables;
+        protected string $_Joins;
+        
+        protected string $_Join_Type; 
+        protected string $_Join_Table;
+        protected string $_Join_Condition;
+        
+        protected string $_Conditions;
+        protected string $_Groupings;
+        protected string $_Aggregate_Conditions;
+        protected string $_Orderings;
+    }
+
+    class Oracle_Query_Capsule extends Query_Capsule
+    {
+        public function SelectFrom(): string
+        {
+            if($this->_Selections)
+                return "SELECT " . implode(",", $this->Selections()) . " FROM " . implode(",", $this->Tables());
+            return "SELECT * FROM " . implode(",", $this->Tables());
+        }
+
+        public function Join(): string
+        {
+            return $this->_Joins;
+            if($this->_Join_Type)
+                if($this->_Join_Condition)
+                    return "{$this->_Join_Type} JOIN {$this->_Join_Table} ON ({$this->_Join_Condition})";
+                else
+                    return "{$this->_Join_Type} JOIN {$this->_Join_Table}";
+            return "";
+        }
+
+        public function Where(): string
+        {
+            if($this->_Conditions)
+                return "WHERE ({$this->_Conditions})";
+            return "";
+        }
+
+        public function GroupBy(): string
+        {
+            if($this->_Groupings)
+                return "GROUP BY ({$this->_Groupings})";
+            return "";
+        }
+
+        public function Having(): string
+        {
+            if($this->_Aggregate_Conditions)
+                return "HAVING ({$this->_Aggregate_Conditions})";
+            return "";
+        }
+
+        public function OrderBy(): string
+        {
+            if($this->_Orderings)
+                return "ORDER BY ({$this->_Orderings})";
+            return "";
+        }  
+
+        public function SelectFromQuery(string $selections, string $select_format = ""): string
+        {
+            $selections = $this->Translate($selections, $select_format);
+            $tables = implode(",", $this->Tables());
+            return "SELECT {$selections} FROM {$tables}";
+        }
+
+        public function JoinQuery(string $join_type, string $table_name, string $condition = "", string $select_format = ""): string
+        {
+            if(!$join_type)
+                    return "";
+
+            $join_type = $this->Translate($join_type, $select_format);
+            $table_name = $this->Translate($table_name, $select_format);
+
+            if(!$condition)
+                return  "{$join_type} JOIN {$table_name}";
+            
+            $condition = $this->Translate($condition, $select_format);
+            return "{$join_type} JOIN {$table_name} ON ({$condition})";
+        }
+
+        public function WhereQuery(string $condition, string $select_format = ""): string
+        {
+           $condition = $this->Translate($condition, $select_format);
+            return "WHERE ({$condition})";
+        } 
+
+        public function InsertValuesQuery(string $values, string $fields = "", int $table_index = 0, $select_format = ""): string
+        {
+            $table_name = $this->Table($table_index);
+            $selections = [];
+
+            if($fields){
+                $fields = $this->Translate($fields, $select_format);
+                $selections = explode(",", $fields);
+
+                foreach ($selections as $key => $selection)
+                    $selections[$key] = trim($selection);
+            }
+            else
+                $selections = $this->SelectionsFrom($table_name);
+
+            $selections = new Field_Rel(...$selections);
+            $values = $this->Translate($values, $select_format);
+
+            return "INSERT INTO {$table_name} ({$selections}) VALUES ({$values})";
+        }
+
+        public function UpdateQuery(string $settings, string $condition = "", int $table_index = 0, $select_format = ""): string
+        {
+            $settings = $this->Translate($settings, $select_format);
+            $condition = $condition ? $this->Translate($condition, $select_format) : "true";
+            $table_name = $this->Table($table_index);
+            $reference_table = $table_name . ' ' . $this->Join();
+
+            return "UPDATE {$table_name} SET {$settings} FROM {$reference_table} WHERE {$condition}";
+        }
+
+        public function DeleteQuery(string $tables, string $condition = "", string $select_format = ""): string
+        {
+            $condition = $this->Translate($condition, $select_format);
+            $reference_table = $this->Join();
+            return "DELETE {$tables} FROM {$tables} {$reference_table} WHERE {$condition}";
+        }
+
+        public function RenameTableQuery(string $new_name, int $table_index = 0, $select_format = ""): string
+        {
+            $new_name = $this->Translate($new_name, $select_format);
+            return "ALTER TABLE {$this->Table($table_index)} RENAME TO {$new_name}";
+        }
+
+        public function RenameColumnsQuery(string $old_name, string $new_name, int $table_index = 0, $select_format = ""): string
+        {
+            $old_name = $this->Translate($old_name, $select_format);
+            $new_name = $this->Translate($new_name, $select_format);
+            return "ALTER TABLE {$this->Table($table_index)} RENAME COLUMN {$old_name} TO {$new_name}";
+        }
+
+        public function AddColumnsQuery(string $field_names, string $field_definitions, int $table_index = 0, string $select_format = ""): string
+        {
+            $field_initialisations = new Field_Rel();
+
+            $field_names = explode(",", $field_names);
+            foreach ($field_names as $key => $field_name)
+                $field_names[$key] = trim($field_name);
+
+            $field_definitions = explode(",", $field_definitions);
+            foreach ($field_definitions as $key => $field_definition)
+                $field_definitions[$key] = trim($field_definition);
+
+            $size = count($field_names);
+            for($index = 0; $index < $size; ++$index)
+                $field_initialisations[] = "{$field_names[$index]} {$field_definitions[$index]}";
+
+            $field_initialisations = $this->Translate($field_initialisations, $select_format);
+
+            return "ALTER TABLE {$this->Table($table_index)} ADD ({$field_initialisations})";
+        }
+
+        public function ModifyColumnsQuery(string $field_names, string $field_definitions, int $table_index = 0, string $select_format = ""): string
+        {
+            $field_initialisations = new Field_Rel();
+
+            $field_names = explode(",", $field_names);
+            foreach ($field_names as $key => $field_name)
+                $field_names[$key] = trim($field_name);
+
+            $field_definitions = explode(",", $field_definitions);
+            foreach ($field_definitions as $key => $field_definition)
+                $field_definitions[$key] = trim($field_definition);
+
+            $size = count($field_names);
+            for($index = 0; $index < $size; ++$index)
+                $field_initialisations[] = "{$field_names[$index]} {$field_definitions[$index]}";
+
+            $field_initialisations = $this->Translate($field_initialisations, $select_format);
+
+            return "ALTER TABLE {$this->Table($table_index)} MODIFY ({$field_initialisations})";
+        }
+
+        public function DropColumnsQuery(string $fields, int $table_index = 0, string $select_format = ""): string
+        {
+            $fields = $this->Translate($fields, $select_format);
+            return "ALTER TABLE {$this->Table($table_index)} DROP ({$fields})";
+        }
+
+        public function SetUnusedColumnsQuery(string $fields, int $table_index = 0, string $select_format = ""): string
+        {
+            $fields = $this->Translate($fields, $select_format);
+            return "ALTER TABLE {$this->Table($table_index)} SET UNUSED ({$fields})";
+        }
+
+        public function DropUnusedColumnsQuery(int $table_index = 0): string
+        {
+            return "ALTER TABLE {$this->Table($table_index)} DROP UNUSED COLUMNS CHECKPOINT 250";
+        }
+
+        public function DropTableQuery(int $table_index = 0): string
+        {
+            return "DROP TABLE {$this->Table($table_index)}";
+        }
+    }
+    
+    class MySQL_Query_Capsule extends Query_Capsule
+    {
+        public function SelectFrom(): string
+        {
+            if($this->_Selections)
+                return "SELECT " . implode(",", $this->Selections()) . " FROM " . implode(",", $this->Tables());
+            return "SELECT * FROM " . implode(",", $this->Tables());
+        }
+
+        public function Join(): string
+        {
+            return $this->_Joins;
+            if($this->_Join_Type)
+                if($this->_Join_Condition)
+                    return "{$this->_Join_Type} JOIN {$this->_Join_Table} ON ({$this->_Join_Condition})";
+                else
+                    return "{$this->_Join_Type} JOIN {$this->_Join_Table}";
+            return "";
+        }
+
+        public function Where(): string
+        {
+            if($this->_Conditions)
+                return "WHERE ({$this->_Conditions})";
+            return "";
+        }
+
+        public function GroupBy(): string
+        {
+            if($this->_Groupings)
+                return "GROUP BY ({$this->_Groupings})";
+            return "";
+        }
+
+        public function Having(): string
+        {
+            if($this->_Aggregate_Conditions)
+                return "HAVING ({$this->_Aggregate_Conditions})";
+            return "";
+        }
+
+        public function OrderBy(): string
+        {
+            if($this->_Orderings)
+                return "ORDER BY ({$this->_Orderings})";
+            return "";
+        }  
+
+        public function SelectFromQuery(string $selections, string $select_format = ""): string
+        {
+            $selections = $this->Translate($selections, $select_format);
+            $tables = implode(",", $this->Tables());
+            return "SELECT {$selections} FROM {$tables}";
+        }
+
+        public function JoinQuery(string $join_type, string $table_name, string $condition = "", string $select_format = ""): string
+        {
+            if(!$join_type)
+                    return "";
+
+            $join_type = $this->Translate($join_type, $select_format);
+            $table_name = $this->Translate($table_name, $select_format);
+
+            if(!$condition)
+                return  "{$join_type} JOIN {$table_name}";
+            
+            $condition = $this->Translate($condition, $select_format);
+            return "{$join_type} JOIN {$table_name} ON ({$condition})";
+        }
+
+        public function WhereQuery(string $condition, string $select_format = ""): string
+        {
+           $condition = $this->Translate($condition, $select_format);
+            return "WHERE ({$condition})";
+        } 
+
+        public function InsertValuesQuery(string $values, string $fields = "", int $table_index = 0, $select_format = ""): string
+        {
+            $table_name = $this->Table($table_index);
+            $selections = [];
+
+            if($fields){
+                $fields = $this->Translate($fields, $select_format);
+                $selections = explode(",", $fields);
+
+                foreach ($selections as $key => $selection)
+                    $selections[$key] = trim($selection);
+            }
+            else
+                $selections = $this->SelectionsFrom($table_name);
+
+            $selections = new Field_Rel(...$selections);
+            $values = $this->Translate($values, $select_format);
+
+            return "INSERT INTO {$table_name} ({$selections}) VALUES ({$values})";
+        }
+
+        public function UpdateQuery(string $settings, string $condition = "", int $table_index = 0, $select_format = ""): string
+        {
+            $settings = $this->Translate($settings, $select_format);
+            $condition = $condition ? $this->Translate($condition, $select_format) : "true";
+            $table_name = $this->Table($table_index);
+            $reference_table = $table_name . ' ' . $this->Join();
+
+            return "UPDATE {$table_name} SET {$settings} FROM {$reference_table} WHERE ({$condition})";
+        }
+
+        public function DeleteQuery(string $tables, string $condition = "", string $select_format = ""): string
+        {
+            $condition = $this->Translate($condition, $select_format);
+            $reference_table = $tables . ' ' . $this->Join();
+            return "DELETE {$tables} FROM {$tables} {$reference_table} WHERE ({$condition})";
+        }
+
+        public function RenameTableQuery(string $new_name, int $table_index = 0, $select_format = ""): string
+        {
+            $new_name = $this->Translate($new_name, $select_format);
+            return "ALTER TABLE {$this->Table($table_index)} RENAME TO {$new_name}";
+        }
+
+        public function ChangeColumnsQuery(string $old_names, string $new_names, string $defenitions, int $table_index = 0, $select_format = ""): string
+        {
+            $old_names = explode(",", $old_names);
+            $new_names = explode(",", $new_names);
+            $defenitions = explode(",", $defenitions);
+
+            $changes = new Field_Rel();
+            foreach ($old_names as $key => $old_name) {
+                $changes[] = "CHANGE COLUMN {$old_names[$key]} {$new_names[$key]} {$defenitions[$key]}";
+            }
+            $changes = $this->Translate($changes, $select_format);
+
+            return "ALTER TABLE {$this->Table($table_index)} {$changes}";
+        }
+
+        public function AddColumnsQuery(string $field_names, string $field_definitions, int $table_index = 0, string $select_format = ""): string
+        {
+            $field_initialisations = new Field_Rel();
+
+            $field_names = explode(",", $field_names);
+            foreach ($field_names as $key => $field_name)
+                $field_names[$key] = trim($field_name);
+
+            $field_definitions = explode(",", $field_definitions);
+            foreach ($field_definitions as $key => $field_definition)
+                $field_definitions[$key] = trim($field_definition);
+
+            $size = count($field_names);
+            for($index = 0; $index < $size; ++$index)
+                $field_initialisations[] = "ADD {$field_names[$index]} {$field_definitions[$index]}";
+
+            $field_initialisations = $this->Translate($field_initialisations, $select_format);
+
+            return "ALTER TABLE {$this->Table($table_index)} {$field_initialisations}";
+        }
+
+        public function ModifyColumnsQuery(string $field_names, string $field_definitions, int $table_index = 0, string $select_format = ""): string
+        {
+            $field_initialisations = new Field_Rel();
+
+            $field_names = explode(",", $field_names);
+            foreach ($field_names as $key => $field_name)
+                $field_names[$key] = trim($field_name);
+
+            $field_definitions = explode(",", $field_definitions);
+            foreach ($field_definitions as $key => $field_definition)
+                $field_definitions[$key] = trim($field_definition);
+
+            $size = count($field_names);
+            for($index = 0; $index < $size; ++$index)
+                $field_initialisations[] = "MODIFY {$field_names[$index]} {$field_definitions[$index]}";
+
+            $field_initialisations = $this->Translate($field_initialisations, $select_format);
+
+            return "ALTER TABLE {$this->Table($table_index)} {$field_initialisations}";
+        }
+
+        public function DropColumnsQuery(string $fields, int $table_index = 0, string $select_format = ""): string
+        {
+            $fields = $this->Translate($fields, $select_format);
+            $fields = 'DROP ' . $fields;
+            $fields = str_replace(",", ",DROP", $fields);
+
+            return "ALTER TABLE {$this->Table($table_index)} {$fields}";
+        }
+
+        public function DropTableQuery(int $table_index = 0): string
+        {
+            return "DROP TABLE {$this->Table($table_index)}";
+        }
     }
 ?>
