@@ -70,17 +70,27 @@
         //Table-specific conditioning[ Year Of Release, Rating ]
         if($include_table[1])
         {
-            $lower = [
-                $_GET["date-from"],
-                $_GET["rating-from"]
-            ];
+            $lower = [];
+            $upper = [];
             
-            $upper = [
-                $_GET["date-to"],
-                $_GET["rating-to"]
-            ];
+            $field_numbers = [];
+
+            if($_POST['filter-YOR']){
+                $lower[] = $_GET["date-from"];
+                $upper[] = $_GET["date-to"];
+                $field_number[] = 1;
+            }
             
-            $searching_conditions .= " AND ($1.1 BETWEEN {$lower[0]} AND {$upper[0]}) AND ($1.2 BETWEEN {$lower[1]} AND {$upper[1]})"; 
+            if($_GET['filter-rating']){
+                $lower[] = $_GET["rating-from"];
+                $upper[] = $_GET["rating-to"];
+                $field_number[] = 2;
+            }
+            
+            foreach($field_numbers as $fn){
+                $index = $fn - 1;
+                $searching_conditions .= " AND ($1.{$fn} BETWEEN {$lower[$index]} AND {$upper[$index]})";
+            }
         }
 
         $pattern = $_GET["search-term"];
