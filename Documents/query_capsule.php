@@ -101,22 +101,31 @@
     {
         function __construct(Table_Field_Rel ...$TFRs)
         {
-            foreach($TFRs as $TFR){
-                $this->_Tables[] = $TFR->Table();
-                foreach($TFR->GlobalFields()->Data() as $selection)
-                    $this->_Selections[] = $selection;
-
-                $this->_Conditions = "";
-                $this->_Groupings = "";
-                $this->_Aggregate_Conditions = "";
-                $this->_Orderings = "";
-                $this->_Joins = "";
-                /*
-                $this->_Join_Type = "";
-                $this->_Join_Table = "";
-                $this->_Join_Condition = "";
-                */
+            if($TFRs)
+                foreach($TFRs as $TFR){
+                    $this->_Tables[] = $TFR->Table();
+                    foreach($TFR->GlobalFields()->Data() as $selection)
+                        $this->_Selections[] = $selection;
+                }
+            else
+            {
+                $this->Tables[] = "";
+                $this->Selections[] = "";
             }
+
+            $this->_Conditions = "";
+            $this->_Groupings = "";
+            $this->_Aggregate_Conditions = "";
+            $this->_Orderings = "";
+            //$this->_Joins = "";
+            $this->_Join_Type = "";
+            $this->_Join_Table = "";
+            $this->_Join_Condition = "";
+        }
+
+        final public function isAssigned(): bool
+        {
+            return isset($this->_Selections);
         }
 
         final public function Selection(int $index = 0): string
@@ -193,30 +202,18 @@
         public function SetJoin(string $join_type, string $table_name, string $condition = "", string $select_format = ""): void
         {
             if(!$join_type){
-                $this->_Joins = "";
+                $this->_Join_Type = "";
                 return;
             }
 
             $join_type = $this->Translate($join_type, $select_format);
             $table_name = $this->Translate($table_name, $select_format);
 
-            if($condition){
-                $condition = $this->Translate($condition, $select_format);
-                $this->_Joins = "{$join_type} JOIN {$table_name} ON {$condition}";
-                /*
-                $this->_Join_Type = $join_type;
-                $this->_Join_Table = $table_name;
-                $this->_Join_Condition = $condition;
-                */
-            }
-            else{
-                $this->_Joins = "{$join_type} JOIN {$table_name}";
-                /*
-                $this->_Join_Type = $join_type;
-                $this->_Join_Table = $table_name;
-                $this->_Join_Condition = $condition;
-                */
-            }
+            $condition = $this->Translate($condition, $select_format);          
+             
+            $this->_Join_Type = $join_type;
+            $this->_Join_Table = $table_name;
+            $this->_Join_Condition = $condition;
         }
 
         final public function SetWhere(string $encoded, string $select_format = ""): void
@@ -241,7 +238,7 @@
 
         final protected function Translate(string $encoded, string $reference): string
         {
-            return $this->Parse_All($this->FormatShortHand($encoded, $reference));
+            return $this->Parse_All($this->FormatShortHand($this->Normalize($encoded), $reference));
         }
 
         final protected function FormatShortHand(string $canvas, string $format): string //formats from placeholder tags [${number}_] to encoded form [$(table_no).(field_no)]
@@ -259,10 +256,17 @@
                     else if($replacement[0] == "#")
                         $replacement = substr($replacement, 1);
 
-                    $canvas = str_replace('$' . $var . "_", $replacement, $canvas);
+                    $canvas = str_replace('$' . $var . '_', $replacement, $canvas);
+                }
+                
+                while(1){
+                    $replacement = preg_replace("/" . "[\$][0-9]+?[\_]" . "/", "", $canvas);
+                    if($canvas == $replacement)
+                        break;
+                    $canvas = $replacement;
                 }
             }
-
+            
             return $canvas;
         }
 
@@ -273,39 +277,29 @@
 
             $substitute_fields = function (array $matches) use($Table_Field_Map, $Table_Names): string
             {
-                $table_name = $Table_Names[$matches[2]];
-                $fields = $Table_Field_Map[$table_name]->Under($table_name);
-                return $matches[1] . $fields[$matches[3]];
-            };
-
-            $substitute_fields_front = function (array $matches) use($Table_Field_Map, $Table_Names): string
-            {
                 $table_name = $Table_Names[$matches[1]];
-                $fields = $Table_Field_Map[$table_name]->Under($table_name);
+                if(!($GlobalFields = $Table_Field_Map[$table_name]))
+                    return "";
+                $fields = $GlobalFields->Under($table_name);
                 return $fields[$matches[2]];
             };
            
             $substitute_tables = function (array $matches) use($Table_Names): string
             {
-                return $matches[1] . $Table_Names[$matches[2]];
-            };
-            
-            $substitute_tables_front = function (array $matches) use($Table_Names): string
-            {
-                return $Table_Names[$matches[1]];
+                if($table_name = $Table_Names[$matches[1]])
+                    return $table_name;
+                return "";
             };
 
             while(1){
-                $advancement = preg_replace_callback("/" . "([^A-Za-z0-9\_])[\$]([0-9]+)[\.]([0-9]+)" . "/", $substitute_fields, $encoded);
-                $advancement = preg_replace_callback("/" . "^[\$]([0-9]+)[\.]([0-9]+)" . "/", $substitute_fields_front, $advancement);
+                $advancement = preg_replace_callback("/" . "[\$]([0-9]+)[\.]([0-9]+)" . "/", $substitute_fields, $encoded);
                 if($encoded == $advancement)
                     break;
                 $encoded = $advancement;
             }
             
             while(1){
-                $advancement = preg_replace_callback("/" . "([^A-Za-z0-9\_])[\$]([0-9]+)" . "/", $substitute_tables, $encoded);
-                $advancement = preg_replace_callback("/" . "^[\$]([0-9]+)" . "/", $substitute_tables_front, $advancement);
+                $advancement = preg_replace_callback("/" . "[\$]([0-9]+)" . "/", $substitute_tables, $encoded);
                 if($encoded == $advancement)
                     break;
                 $encoded = $advancement;
@@ -369,9 +363,13 @@
             return $encoded;
         }
 
+        final protected function Normalize(string $abnormal): string
+        {
+            return trim(str_replace("\n", " ", $abnormal));
+        }
+
         protected array $_Selections;
         protected array $_Tables;
-        protected string $_Joins;
         
         protected string $_Join_Type; 
         protected string $_Join_Table;
@@ -586,12 +584,11 @@
 
         public function Join(): string
         {
-            return $this->_Joins;
-            if($this->_Join_Type)
+            if($this->_Join_Type){
                 if($this->_Join_Condition)
-                    return "{$this->_Join_Type} JOIN {$this->_Join_Table} ON ({$this->_Join_Condition})";
-                else
-                    return "{$this->_Join_Type} JOIN {$this->_Join_Table}";
+                    return "{$this->_Join_Type} JOIN {$this->_Join_Table} ON ({$this->_Join_Condition})";   
+                return "{$this->_Join_Type} JOIN {$this->_Join_Table}";
+            }
             return "";
         }
 
