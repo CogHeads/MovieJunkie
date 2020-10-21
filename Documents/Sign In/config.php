@@ -6,7 +6,7 @@ define('DB_USERNAME', 'root');
 define('DB_PASSWORD', 'Wethebestmusix.123');
 define('DB_NAME', 'demo');
  
-require_once "../database_relay.php";
+require_once "../db_relay.php";
 
 /* Attempt to connect to MySQL database */
 $DB_Manager = new DB_Relay(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
