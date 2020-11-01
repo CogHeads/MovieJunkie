@@ -1,7 +1,7 @@
 # WatchSomething - Find a movie or tv show to watch !
 
 ### About
-Ever found yourself in a situation where you want to watch some movie or tv show, but simply can't find one to watch? Worry no more. WatchSomething uses https://www.themoviedb.org API to help you out. With this website you can:
+Ever found yourself in a situation where you want to watch some movie or tv show, but simply can't find one to watch? Worry no more. MovieJunkie uses https://www.themoviedb.org API to help you out. With this website you can:
 * Search for movies and tv shows (by title, actor, year or genre).
 * List the top rated movies and tv shows of all times.
 * List the latest movies and tv shows that are on air currently.
@@ -10,7 +10,7 @@ Ever found yourself in a situation where you want to watch some movie or tv show
 * Get recommendations that are similar to a movie or a tv show on the detailed informations page.
 * Get recommendations for movies or tv shows if there are none in your watchlist or favorites list.
 
-Check it out here: https://pecko95.github.io/WatchSomething/
+Check it out here: 
 
 ##### I do not hold any ownership of the images used in this project. For now, this project is for non-commercial use.
 
@@ -19,13 +19,13 @@ Check it out here: https://pecko95.github.io/WatchSomething/
 ###### To-Do in a future update:
 * Add an option which will help the user to choose whether he wants to watch some movie, or a tv show, with specific genre or actor, which will narrow the choices the user needs to make.
 
-#### Update #6 - minor - (2018-09-17)
+#### Update #6 - minor - 
 * Added an option to get a random movie or tv show straight away.
 * Redesigned recommendations for movies and tv shows on watchlist / favorites list.
 * Changed color scheme (again...).
 * Minor fixes.
 
-#### Update #5 (2018-08-23)
+#### Update #5 
 ###### DONE:
 * Re-designed homepage.
 * Re-designed navigation bar.
@@ -33,7 +33,7 @@ Check it out here: https://pecko95.github.io/WatchSomething/
 * Fixed random number issues for trailers for movies and tv shows details page.
 * Cut out about & upcoming movies pages.
 
-#### Update #4 (2018-08-09) - TOTAL OVERHAUL
+#### Update #4 
 ###### DONE:
 * New design for the whole website.
 * New design for the movie cards.
@@ -66,7 +66,7 @@ Check it out here: https://pecko95.github.io/WatchSomething/
 * Fixed design (responsiveness) issues for smaller screens.
 * Fixed positioning of notifications.
 ---------------------------------------
-#### Update #3 (2018-06-20)
+#### Update #3 
 ###### DONE:
 * New color scheme (black/red).
 * Edited navigation bar with better animation, so now it doesnt looks buggy.
@@ -77,7 +77,7 @@ Check it out here: https://pecko95.github.io/WatchSomething/
 * Updated the about page.
 * Fixed some animations, to smooth them out.
 ---------------------------------------
-#### Update #2 (2018-06-14)
+#### Update #2 
 ###### DONE:
 * Added option to sort the output by set min/max average rating (for movies by year and genre only).
 * Added option to sort "UPCOMING" movies by month.
@@ -90,7 +90,7 @@ Check it out here: https://pecko95.github.io/WatchSomething/
 * Corrected titles of pages.
 * Created the about page, giving credits to TMDB and Flaticon(Freepik).
 ---------------------------------------
-#### Update #1 (2018-05-29)
+#### Update #1 
 Lists are here !! Personal watchlist and favorites list(for movies and tv shows).
 ###### DONE:
 * Re-designed the home page.
@@ -98,7 +98,7 @@ Lists are here !! Personal watchlist and favorites list(for movies and tv shows)
 * Added an option to add to watchlist or favorites list for every search option( top rated, upcoming,latest, popular, by year, by actor, by genre, by title for movies/tv shows).
 * Corrected the links to match properly with each other.
 ---------------------------------------
-#### First release (2018-05-22)
+
 A lot of changes and improvements have been made, from functionality to design. Here's a list of what's been changed/imporved so far.
 ###### DONE:
 * Added option to search by genres in movies by year.
