@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Bree+Serif&display=swap');
+
 :root {
   --blue: #5e72e4;
   --indigo: #5603ad;
@@ -15,7 +18,7 @@
   --light: #ced4da;
   --lighter: #e9ecef;
   --primary: #5e72e4;
-  --secondary: #f7fafc;
+  --secondary: hsl(0, 0%, 100%);
   --success: #2dce89;
   --info: #11cdef;
   --warning: #fb6340;
@@ -1170,9 +1173,27 @@ button.bg-white:focus {
 
 .shadow,
 .card-profile-image img {
+  
   box-shadow: 0 0 2rem 0 rgba(136, 152, 170, .15) !important;
 }
 
+
+.card-profile-image :hover .edit {
+	display: block;
+}
+
+.edit {
+	padding-top: 7px;	
+	padding-right: 7px;
+	position: absolute;
+	right: 0;
+	top: 0;
+	display: none;
+}
+
+.edit a {
+	color: #000;
+}
 .m-0 {
   margin: 0 !important;
 }
@@ -2031,3 +2052,25 @@ p {
 #navbar .navbar {
   margin-bottom: 20px;
 }
+.profile-btn{
+  display:flex;
+}
+
+button.savebtn{
+  border:0;
+  padding:10px;
+  widows: 25px;
+  border-radius: 3px;
+  background:#5603ad;
+  font-family:"Bree Serif", serif;
+  font-size:1rem;
+  margin:5px 2px;
+  cursor:pointer;
+  outline:none;
+  margin-bottom:10px;
+  transition:background 0.3s ease-in-out;
+  box-shadow:0px 5px 7px 0px rgba(0,0,0,0.3);
+  color:#ffff;
+
+}
+
