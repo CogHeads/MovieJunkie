@@ -2073,4 +2073,24 @@ button.savebtn{
   color:#ffff;
 
 }
+button.cancelbtn{
+  border:0;
+  padding:10px;
+  widows: 25px;
+  border-radius: 3px;
+  background:#5603ad;
+  font-family:"Bree Serif", serif;
+  font-size:1rem;
+  margin:5px 2px;
+  cursor:pointer;
+  outline:none;
+  margin-bottom:10px;
+  transition:background 0.3s ease-in-out;
+  box-shadow:0px 5px 7px 0px rgba(0,0,0,0.3);
+  color:#ffff;
+  
 
+}
+button.cancelbtn a{
+  color:#ffff;
+}
