@@ -12,7 +12,7 @@ Ever found yourself in a situation where you want to watch some movie or tv show
 
 Check it out here: 
 
-##### I do not hold any ownership of the images used in this project. For now, this project is for non-commercial use.
+##### We do not hold any ownership of the images used in this project. For now, this project is for non-commercial use.
 
 ##### Glasses icon in the logo made by: https://www.flaticon.com/authors/pixel-perfect from https://www.flaticon.com/
 
