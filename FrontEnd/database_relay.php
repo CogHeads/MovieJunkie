@@ -49,7 +49,7 @@
                     ++$start;
             
                 $popped = substr($this->_query_stack, $start);
-                $this->_query_stack = substr($this->_query_stack,0, -strlen($popped));
+                $this->_query_stack = substr($this->_query_stack, 0, -strlen($popped));
             }
 
             return $popped;
